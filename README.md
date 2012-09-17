@@ -1,4 +1,4 @@
-# A node library for Pusher API
+# A node client for node.js
 
 ## How to use
 
