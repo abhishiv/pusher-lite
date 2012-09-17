@@ -1,4 +1,4 @@
-# A node client for node.js
+# A node client for pusher
 
 ## How to use
 
