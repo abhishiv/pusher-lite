@@ -31,4 +31,6 @@ pusher_server.connect()
 
 ```
 
+## License
 
+This code is free to use under the terms of the MIT license.
