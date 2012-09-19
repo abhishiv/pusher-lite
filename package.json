@@ -1,10 +1,11 @@
 {
   "name": "pusher-server",
   "description": "Pusher client for node.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Abhishiv Saxena <abhishiv@gmail.com>",
   "keywords": ["pusher", "websockets", "realtime"],
   "repository": "git@github.com:abhishiv/pusher-server.git",
+  "main": "./lib/pusher-server.js"
   "dependencies": {
     "underscore": "",
     "node-uuid": "",

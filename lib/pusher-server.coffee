@@ -88,12 +88,13 @@ class PusherServer extends EventEmitter
     @client =  new WebSocket()  
     @channels = {}
     @client.on 'connect', (connection) =>
-      console.log 'connecting '
+      console.log 'connected to pusher '
       @connection = connection
       connection.on 'message', (msg) =>
         @resetActivityCheck()
         @recieveMessage msg
-    @client.connect "wss://ws.pusherapp.com:443/app/#{@credentials.key}?client=js&version=1.12.1&protocol=5&flash=false"
+    console.log "trying connecting to pusher on - wss://ws.pusherapp.com:443/app/#{@credentials.key}?client=node-pusher-server&version=0.0.1&protocol=5&flash=false"
+    @client.connect "wss://ws.pusherapp.com:443/app/#{@credentials.key}?client=node-pusher-server&version=0.0.1&protocol=5&flash=false"
 
   recieveMessage: (msg) =>
     if msg.type is 'utf8' 
