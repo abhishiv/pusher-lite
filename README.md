@@ -4,12 +4,6 @@
 
 ```javascript
 
-PUSHER_APP_ID=xx PUSHER_KEY=xxx PUSHER_SECRET=xxx  node test.js
-
-```
-
-```javascript
-
 PusherServer = require('pusher-server').PusherServer
 
 pusher_server = new PusherServer
@@ -30,6 +24,12 @@ pusher_server.on 'connect', () ->
       console.log "member_added"
 
 pusher_server.connect()
+
+```
+
+```javascript
+
+PUSHER_APP_ID=xx PUSHER_KEY=xxx PUSHER_SECRET=xxx  node test.js
 
 ```
 
