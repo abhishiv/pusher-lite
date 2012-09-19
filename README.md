@@ -10,6 +10,8 @@ PUSHER_APP_ID=xx PUSHER_KEY=xxx PUSHER_SECRET=xxx  node test.js
 
 ```javascript
 
+PusherServer = require('pusher-server').PusherServer
+
 pusher_server = new PusherServer
   appId: (process.env.PUSHER_APP_ID or app_id)
   key: (process.env.PUSHER_KEY or pusher_key)
