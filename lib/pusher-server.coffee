@@ -76,8 +76,11 @@ class PusherServer extends EventEmitter
             _(@channels).each (channel) =>
                 @unsubscribe channel.channel_name, channel.channel_data
             console.log "connetcing again at #{(new Date).toLocaleTimeString()}"
-            @connection.close()
-            @connection.on 'close', () =>
+            if @connection.state is "open"
+              @connection.close()
+              @connection.on 'close', () =>
+                @connect()
+            else
               @connect()
           30000
         )
@@ -90,9 +93,12 @@ class PusherServer extends EventEmitter
     @client.on 'connect', (connection) =>
       console.log 'connected to pusher '
       @connection = connection
-      connection.on 'message', (msg) =>
+      console.log @connection.state
+      @connection.on 'message', (msg) =>
         @resetActivityCheck()
         @recieveMessage msg
+      @connection.on 'close', () =>
+        @connect()
     console.log "trying connecting to pusher on - wss://ws.pusherapp.com:443/app/#{@credentials.key}?client=node-pusher-server&version=0.0.1&protocol=5&flash=false"
     @client.connect "wss://ws.pusherapp.com:443/app/#{@credentials.key}?client=node-pusher-server&version=0.0.1&protocol=5&flash=false"
 
