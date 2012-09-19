@@ -5,7 +5,7 @@
   "author": "Abhishiv Saxena <abhishiv@gmail.com>",
   "keywords": ["pusher", "websockets", "realtime"],
   "repository": "git@github.com:abhishiv/pusher-server.git",
-  "main": "./lib/pusher-server.js"
+  "main": "./lib/pusher-server.js",
   "dependencies": {
     "underscore": "",
     "node-uuid": "",
