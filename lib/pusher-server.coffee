@@ -106,7 +106,10 @@ class PusherServer extends EventEmitter
         @state = { name: "connected", socket_id: data.socket_id }
         console.log @state
         @emit 'connect'
-      channel = @channels[payload.channel_name]
+      if payload.event is "pusher_internal:subscription_succeeded"
+        channel = @channels[payload.channel]
+        if channel then channel.emit 'success'
+      channel = @channels[payload.channel]
       console.log "got event #{payload.event} on #{(new Date).toLocaleTimeString()}"
       if payload.event is "pusher:error"
         console.log payload
