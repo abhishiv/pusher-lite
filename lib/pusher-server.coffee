@@ -76,11 +76,7 @@ class PusherServer extends EventEmitter
             _(@channels).each (channel) =>
                 @unsubscribe channel.channel_name, channel.channel_data
             console.log "connetcing again at #{(new Date).toLocaleTimeString()}"
-            if @connection.state is "open"
-              @connection.close()
-              @connection.on 'close', () =>
-                @connect()
-            else
+            if @connection.state isnt "open"
               @connect()
           30000
         )
