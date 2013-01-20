@@ -1,7 +1,7 @@
 {
   "name": "pusher-node-client",
   "description": "Pusher client for node.js",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "author": "Abhishiv Saxena <abhishiv@gmail.com>",
   "keywords": ["pusher", "websockets", "realtime"],
   "repository": "git@github.com:abhishiv/pusher-node-client.git",
