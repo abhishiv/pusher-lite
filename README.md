@@ -28,7 +28,7 @@ pusher_client.connect()
 
 ```
 
-```javascript
+```sh
 
 PUSHER_APP_ID=xx PUSHER_KEY=xxx PUSHER_SECRET=xxx  node test.js
 
