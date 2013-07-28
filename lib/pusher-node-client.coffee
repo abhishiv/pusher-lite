@@ -20,7 +20,7 @@ class PusherClient extends EventEmitter
   constructor: (credentials) ->
     @credentials = credentials
 
-  subscribe: (channel_name, channel_data) =>
+  subscribe: (channel_name, channel_data = {}) =>
     stringToSign = "#{@state.socket_id}:#{channel_name}:#{JSON.stringify(channel_data)}"
     auth = @credentials.key + ':' + crypto.createHmac('sha256', @credentials.secret).update(stringToSign).digest('hex');
     req = 
@@ -41,7 +41,7 @@ class PusherClient extends EventEmitter
       @channels[channel_name] = channel
       channel
   
-  unsubscribe: (channel_name, channel_data) =>
+  unsubscribe: (channel_name, channel_data = {}) =>
     console.log "unsubscribing from #{channel_name}"
     stringToSign = "#{@state.socket_id}:#{channel_name}:#{JSON.stringify(channel_data)}"
     auth = @credentials.key + ':' + crypto.createHmac('sha256', @credentials.secret).update(stringToSign).digest('hex');
