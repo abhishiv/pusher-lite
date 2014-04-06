@@ -1,10 +1,16 @@
 # A pusher client for the node.js
 
+## How to install
+
+```bash
+  npm install pusher-node-client
+```
+
 ## How to use
 
 ```javascript
 
-PusherClient = require('./lib/pusher-node-client').PusherClient
+PusherClient = require('pusher-node-client').PusherClient
 
 pusher_client = new PusherClient
   appId: (process.env.PUSHER_APP_ID or app_id)
@@ -12,10 +18,10 @@ pusher_client = new PusherClient
   secret: (process.env.PUSHER_SECRET or pusher_secret)
 
 pres = null
-pusher_client.on 'connect', () ->
+pusher_client.on 'connect', ->
   pres = pusher_client.subscribe("presence-users", {user_id: "system"})
 
-  pres.on 'success', () ->
+  pres.on 'success', ->
 
     pres.on 'pusher_internal:member_removed', (data) ->
       console.log "member_removed"
