@@ -7,7 +7,6 @@
   "repository": "git@github.com:abhishiv/pusher-node-client.git",
   "main": "./lib/pusher-node-client.js",
   "dependencies": {
-    "underscore": "",
     "node-uuid": "",
     "websocket": "1.0.1"
   }
