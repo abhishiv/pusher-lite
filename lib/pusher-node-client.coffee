@@ -2,7 +2,6 @@ WebSocket = require('websocket').client
 uuid = require 'node-uuid'
 crypto = require 'crypto'
 {EventEmitter} = require "events"
-_ = require 'underscore'
 
 class PusherChannel extends EventEmitter
   
@@ -72,8 +71,7 @@ class PusherClient extends EventEmitter
         @waitingTimeout = setTimeout(
           =>
             if PusherClient.debug then console.log "disconnecting because of inactivity at #{(new Date).toLocaleTimeString()}"
-            _(@channels).each (channel) =>
-                @unsubscribe channel.channel_name, channel.channel_data
+            @unsubscribe c.channel_name, c.channel_data for c of @channels
             if PusherClient.debug then console.log "connetcing again at #{(new Date).toLocaleTimeString()}"
             if @connection.state isnt "open"
               @connect()
