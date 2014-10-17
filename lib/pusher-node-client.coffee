@@ -6,9 +6,10 @@ _ = require 'underscore'
 
 class PusherChannel extends EventEmitter
   
-  constructor: (channel_name, channel_data) ->
+  constructor: (channel_name, channel_data, jsonify = true) ->
     @channel_name = channel_name
     @channel_data = channel_data
+    @jsonify = jsonify
 
 
 class PusherClient extends EventEmitter
@@ -20,7 +21,7 @@ class PusherClient extends EventEmitter
   constructor: (credentials) ->
     @credentials = credentials
 
-  subscribe: (channel_name, channel_data = {}) =>
+  subscribe: (channel_name, channel_data = {}, jsonify = true) =>
     stringToSign = "#{@state.socket_id}:#{channel_name}:#{JSON.stringify(channel_data)}"
     auth = @credentials.key + ':' + crypto.createHmac('sha256', @credentials.secret).update(stringToSign).digest('hex');
     req = 
@@ -37,7 +38,7 @@ class PusherClient extends EventEmitter
       new Error "Existing subscription to #{channel_name}"
       channel
     else
-      channel = new PusherChannel channel_name, channel_data
+      channel = new PusherChannel channel_name, channel_data, jsonify
       @channels[channel_name] = channel
       channel
   
@@ -113,7 +114,11 @@ class PusherClient extends EventEmitter
       console.log "got event #{payload.event} on #{(new Date).toLocaleTimeString()}"
       if payload.event is "pusher:error"
         console.log payload
-      if channel 
-        channel.emit payload.event, JSON.parse payload.data
+      if channel
+        if channel.jsonify
+          channel.emit payload.event, JSON.parse payload.data
+        else
+          channel.emit payload.event, payload.data
+
 
 module.exports.PusherClient = PusherClient
