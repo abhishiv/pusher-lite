@@ -11,7 +11,7 @@
   "repository": "git@github.com:abhishiv/pusher-node-client.git",
   "main": "./lib/pusher-node-client.js",
   "dependencies": {
-    "jethro": "^1.1.4",
+    "jethro": "^1.1.5",
     "node-uuid": "",
     "underscore": "",
     "websocket": "1.0.1"
