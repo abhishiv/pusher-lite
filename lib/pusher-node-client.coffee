@@ -2,18 +2,19 @@ WebSocket = require('websocket').client
 uuid = require('node-uuid')
 crypto = require('crypto')
 {EventEmitter} = require "events"
+request = require 'request'
 _ = require 'underscore'
+packageInfo = require '../package.json'
 
 class PusherChannel extends EventEmitter
-  
+
   constructor: (channel_name, channel_data) ->
     @channel_name = channel_name
     @channel_data = channel_data
 
-
 class PusherClient extends EventEmitter
-  
-  state: 
+
+  state:
     name: "disconnected"
     socket_id: null
 
@@ -21,16 +22,15 @@ class PusherClient extends EventEmitter
     @credentials = credentials
 
   subscribe: (channel_name, channel_data = {}) =>
-    stringToSign = "#{@state.socket_id}:#{channel_name}:#{JSON.stringify(channel_data)}"
-    auth = @credentials.key + ':' + crypto.createHmac('sha256', @credentials.secret).update(stringToSign).digest('hex');
-    req = 
-      id: uuid.v1()
-      event: "pusher:subscribe"
-      data: 
-        channel: channel_name
-        auth: auth
-        channel_data: JSON.stringify channel_data
-    @connection.sendUTF JSON.stringify req
+    @getAuthtication channel_name, channel_data, (auth, channel_data) =>
+      req =
+        id: uuid.v1()
+        event: "pusher:subscribe"
+        data:
+          channel: channel_name
+          auth: auth
+          channel_data: JSON.stringify channel_data
+      @connection.sendUTF JSON.stringify req
 
     channel = @channels[channel_name]
     if channel
@@ -40,19 +40,18 @@ class PusherClient extends EventEmitter
       channel = new PusherChannel channel_name, channel_data
       @channels[channel_name] = channel
       channel
-  
+
   unsubscribe: (channel_name, channel_data = {}) =>
     console.log "unsubscribing from #{channel_name}"
-    stringToSign = "#{@state.socket_id}:#{channel_name}:#{JSON.stringify(channel_data)}"
-    auth = @credentials.key + ':' + crypto.createHmac('sha256', @credentials.secret).update(stringToSign).digest('hex');
-    req = 
-      id: uuid.v1()
-      event: "pusher:unsubscribe"
-      data: 
-        channel: channel_name
-        auth: auth
-        channel_data: JSON.stringify channel_data
-    @connection.sendUTF JSON.stringify req
+    @getAuthtication channel_name, channel_data, (auth, channel_data) =>
+      req =
+        id: uuid.v1()
+        event: "pusher:unsubscribe"
+        data:
+          channel: channel_name
+          auth: auth
+          channel_data: JSON.stringify channel_data
+      @connection.sendUTF JSON.stringify req
 
     channel = @channels[channel_name]
     if channel
@@ -61,6 +60,33 @@ class PusherClient extends EventEmitter
 
     else
       new Error "No subscription to #{channel_name}"
+
+  getAuthtication: (channel_name, channel_data, callback) =>
+    if @credentials.authEndpoint || @credentials.auth
+      {socket_id} = @state
+      form = _.extend { channel_name, socket_id }, channel_data
+      requestOpts = _.extend {
+        method: 'POST'
+        form: form
+        url: @credentials.authEndpoint
+      }, @credentials.auth || {}
+      request requestOpts, (err, res, body) =>
+        if res.statusCode is 200
+          try
+            data = JSON.parse body
+            channel_data = try JSON.parse(data.channel_data) || channel_data
+          catch e
+            console.error e
+            return
+          callback data.auth, channel_data
+        else
+          console.error err || "Error #{res.statusCode} #{res.body}"
+      return
+    if @credentials.secret
+      stringToSign = "#{@state.socket_id}:#{channel_name}:#{JSON.stringify(channel_data)}"
+      callback @credentials.key + ':' + crypto.createHmac('sha256', @credentials.secret).update(stringToSign).digest('hex'), channel_data
+      return
+    throw new Error 'secret or authEndpoint is required to subscribe channel'
 
   # name this function better
   resetActivityCheck: () =>
@@ -84,7 +110,7 @@ class PusherClient extends EventEmitter
     )
 
   connect: () =>
-    @client =  new WebSocket()  
+    @client =  new WebSocket()
     @channels = {}
     @client.on 'connect', (connection) =>
       console.log 'connected to pusher '
@@ -95,11 +121,12 @@ class PusherClient extends EventEmitter
         @recieveMessage msg
       @connection.on 'close', () =>
         @connect()
-    console.log "trying connecting to pusher on - wss://ws.pusherapp.com:443/app/#{@credentials.key}?client=node-pusher-server&version=0.0.1&protocol=5&flash=false"
-    @client.connect "wss://ws.pusherapp.com:443/app/#{@credentials.key}?client=node-pusher-server&version=0.0.1&protocol=5&flash=false"
+    wsURL = "wss://ws.pusherapp.com/app/#{@credentials.key}?client=#{packageInfo.name}&version=#{packageInfo.version}&protocol=7&flash=false"
+    console.log "trying connecting to pusher on - #{wsURL}"
+    @client.connect wsURL
 
   recieveMessage: (msg) =>
-    if msg.type is 'utf8' 
+    if msg.type is 'utf8'
       payload = JSON.parse msg.utf8Data
       if payload.event is "pusher:connection_established"
         data = JSON.parse payload.data
@@ -113,7 +140,7 @@ class PusherClient extends EventEmitter
       console.log "got event #{payload.event} on #{(new Date).toLocaleTimeString()}"
       if payload.event is "pusher:error"
         console.log payload
-      if channel 
+      if channel
         channel.emit payload.event, JSON.parse payload.data
 
 module.exports.PusherClient = PusherClient

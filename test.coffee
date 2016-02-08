@@ -19,5 +19,3 @@ pusher_client.on 'connect', () ->
       console.log "member_added"
 
 pusher_client.connect()
-
-
